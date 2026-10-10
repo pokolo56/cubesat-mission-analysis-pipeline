@@ -1,0 +1,50 @@
+%----------------------------------------
+% Spacecraft Configuration
+%----------------------------------------
+Create Spacecraft Sat;
+Sat.DateFormat = UTCGregorian;
+Sat.Epoch = '01 Jan 2026 12:00:00.000';
+Sat.CoordinateSystem = EarthMJ2000Eq;
+Sat.DisplayStateType = Keplerian;
+Sat.SMA = INSERT_SMA;
+Sat.ECC = INSERT_ECC;
+Sat.INC = INSERT_INC;
+Sat.RAAN = 0;
+Sat.AOP = 0;
+Sat.TA = 0;
+Sat.DryMass = 4.0;
+Sat.Cd = 2.2;
+Sat.Cr = 1.8;
+Sat.DragArea = 0.03;
+Sat.SRPArea = 0.03;
+
+%----------------------------------------
+% Force Model & Propagator
+%----------------------------------------
+Create ForceModel DefaultProp_ForceModel;
+DefaultProp_ForceModel.CentralBody = Earth;
+DefaultProp_ForceModel.PrimaryBodies = {Earth};
+DefaultProp_ForceModel.PointMasses = {Sun, Luna};
+DefaultProp_ForceModel.SRP = On;
+DefaultProp_ForceModel.GravityField.Earth.Degree = 4;
+DefaultProp_ForceModel.GravityField.Earth.Order = 4;
+DefaultProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM2.cof';
+DefaultProp_ForceModel.Drag.AtmosphereModel = MSISE90;
+
+Create Propagator Prop;
+Prop.FM = DefaultProp_ForceModel;
+Prop.Type = RungeKutta89;
+
+%----------------------------------------
+% Output Report (Compatibilita Totale)
+%----------------------------------------
+Create ReportFile OrbitReport;
+OrbitReport.Filename = 'output_data.txt';
+OrbitReport.Precision = 6;
+OrbitReport.Add = {Sat.ElapsedSecs, Sat.EarthMJ2000Eq.X, Sat.EarthMJ2000Eq.Y, Sat.EarthMJ2000Eq.Z};
+
+%----------------------------------------
+% Mission Sequence
+%----------------------------------------
+BeginMissionSequence;
+Propagate Prop(Sat) {Sat.ElapsedDays = INSERT_DURATION};
